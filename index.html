@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار الإملاء</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f8ff;
+            text-align: center;
+            padding: 20px;
+            direction: rtl;
+            color: #333;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        h2 {
+            font-size: 1.8em;
+            color: #34495e;
+            margin-top: -10px;
+            margin-bottom: 20px;
+        }
+
+        .name-container, .grade-container, .input-container {
+            margin: 20px;
+        }
+
+        input, select {
+            padding: 10px;
+            font-size: 1em;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 60%;
+            max-width: 400px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 1em;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        #timer {
+            font-size: 1.5em;
+            color: #e74c3c;
+            margin: 20px 0;
+        }
+
+        .word {
+            font-size: 2em;
+            font-weight: bold;
+            color: #2980b9;
+            margin: 20px 0;
+        }
+
+        .result {
+            font-size: 1.2em;
+            margin: 20px 0;
+        }
+
+        .result.correct {
+            color: #27ae60;
+        }
+
+        .result.wrong {
+            color: #e74c3c;
+        }
+
+        #final-score {
+            font-size: 1.8em;
+            margin-top: 30px;
+            color: #8e44ad;
+        }
+
+        #leaderboard {
+            margin-top: 40px;
+            text-align: center;
+        }
+
+        #leaderboard table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            width: 80%;
+            max-width: 600px;
+            border: 1px solid #ccc;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        #leaderboard th, #leaderboard td {
+            padding: 15px;
+            text-align: center;
+            border: 1px solid #ccc;
+        }
+
+        #leaderboard th {
+            background-color: #3498db;
+            color: white;
+            font-size: 1.2em;
+        }
+
+        #leaderboard td {
+            background-color: #ecf0f1;
+        }
+
+        footer {
+            margin-top: 50px;
+            font-size: 0.9em;
+            color: #95a5a6;
+        }
+    </style>
+</head>
+<body>
+    <h1>SAPS</h1>
+    <h2>اختبار الإملاء</h2>
+    <div id="name-container" class="name-container">
+        <p>ما اسمك؟</p>
+        <input type="text" id="name" placeholder="اكتب اسمك هنا">
+        <div class="grade-container">
+            <p>اختر الصف:</p>
+            <select id="grade">
+                <option value="1">الصف 1</option>
+                <option value="2">الصف 2</option>
+                <option value="3">الصف 3</option>
+                <option value="4">الصف 4</option>
+                <option value="5">الصف 5</option>
+                <option value="6">الصف 6</option>
+                <option value="7">الصف 7</option>
+                <option value="8">الصف 8</option>
+            </select>
+        </div>
+        <button id="start-button">ابدأ</button>
+    </div>
+
+    <div id="test-container" style="display: none;">
+        <div id="timer">الوقت: 10 ثواني</div>
+        <div class="word" id="word">الكلمة 1</div>
+        <div class="input-container">
+            <input type="text" id="answer" placeholder="اكتب الإجابة هنا">
+        </div>
+        <button id="next-button">التالي</button>
+    </div>
+
+    <div class="result" id="result"></div>
+    <div id="final-score" style="display: none;"></div>
+
+    <div id="leaderboard" style="display: none;">
+        <h2>لوحة المتصدرين</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>الاسم</th>
+                    <th>الصف</th>
+                    <th>النتيجة</th>
+                </tr>
+            </thead>
+            <tbody id="leaderboard-body"></tbody>
+        </table>
+    </div>
+
+    <footer>
+        © 2024 SAPS. جميع الحقوق محفوظة.
+    </footer>
+</body>
+</html>
