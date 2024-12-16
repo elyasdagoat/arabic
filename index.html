@@ -154,7 +154,6 @@
         let score = 0;
         let timer;
         let timeLeft = 10; // 10 seconds countdown for each word
-        const answers = [];  // Array to store answers
 
         // Words for each grade
         const gradeWords = {
@@ -221,10 +220,3 @@
             clearInterval(timer);
             
             // Update the timer every second
-            timer = setInterval(function () {
-                document.getElementById('timer').textContent = `الوقت: ${timeLeft} ثواني`;
-                timeLeft--;
-
-                if (timeLeft < 0) {
-                    clearInterval(timer);  // Stop the timer
-                    checkAnswer(); // Automatically check
