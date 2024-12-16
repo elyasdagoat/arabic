@@ -1,221 +1,115 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>اختبار الإملاء</title>
-    <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f0f8ff;
-            text-align: center;
-            padding: 20px;
-            direction: rtl;
-            color: #333;
-        }
-
-        h1 {
-            font-size: 2.5em;
-            color: #2c3e50;
-            margin-bottom: 10px;
-        }
-
-        h2 {
-            font-size: 1.8em;
-            color: #34495e;
-            margin-top: -10px;
-            margin-bottom: 20px;
-        }
-
-        .name-container, .grade-container, .input-container {
-            margin: 20px;
-        }
-
-        input, select {
-            padding: 10px;
-            font-size: 1em;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            width: 60%;
-            max-width: 400px;
-        }
-
-        button {
-            padding: 10px 20px;
-            font-size: 1em;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-
-        button:hover {
-            background-color: #0056b3;
-        }
-
-        #timer {
-            font-size: 1.5em;
-            color: #e74c3c;
-            margin: 20px 0;
-        }
-
-        .input-container {
-            margin: 20px;
-        }
-
-        .result {
-            font-size: 1.2em;
-            margin: 20px 0;
-        }
-
-        .result.correct {
-            color: #27ae60;
-        }
-
-        .result.wrong {
-            color: #e74c3c;
-        }
-
-        #final-score {
-            font-size: 1.8em;
-            margin-top: 30px;
-            color: #8e44ad;
-        }
-
-        footer {
-            margin-top: 50px;
-            font-size: 0.9em;
-            color: #95a5a6;
-        }
-
-        .loader {
-            margin-top: 20px;
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #3498db;
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            animation: spin 2s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-    </style>
+    <title>Arabic Spelling Test</title>
 </head>
 <body>
-    <h1>SAPS</h1>
-    <h2>اختبار الإملاء</h2>
-    <div id="name-container" class="name-container">
-        <p>ما اسمك؟</p>
-        <input type="text" id="name" placeholder="اكتب اسمك هنا">
-        <div class="grade-container">
-            <p>اختر الصف:</p>
-            <select id="grade">
-                <option value="1">الصف 1</option>
-                <option value="2">الصف 2</option>
-                <option value="3">الصف 3</option>
-                <option value="4">الصف 4</option>
-                <option value="5">الصف 5</option>
-                <option value="6">الصف 6</option>
-                <option value="7">الصف 7</option>
-                <option value="8">الصف 8</option>
-            </select>
+    <div>
+        <button id="start">Start</button>
+        <div id="word-container" style="display: none;">
+            <h1 id="word"></h1>
+            <input type="text" id="input">
+            <button id="submit">Submit</button>
         </div>
-        <button id="start-button">ابدأ</button>
-    </div>
-
-    <div id="test-container" style="display: none;">
-        <div id="timer">الوقت: 10 ثواني</div>
-        <div class="input-container">
-            <input type="text" id="answer" placeholder="اكتب الإجابة هنا">
+        <div id="score-container" style="display: none;">
+            <p>Score: <span id="score">0</span></p>
         </div>
-        <button id="next-button">التالي</button>
+        <div id="timer-container" style="display: none;">
+            <p>Time Remaining: <span id="timer">60</span> seconds</p>
+        </div>
     </div>
-
-    <div class="result" id="result"></div>
-    <div id="final-score" style="display: none;"></div>
-
-    <footer>
-        © 2024 SAPS. جميع الحقوق محفوظة.
-    </footer>
 
     <script>
-        let currentWordIndex = 0;
-        let words = [];  // List of words (this will be set based on grade selection)
+        const startButton = document.getElementById('start');
+        const wordContainer = document.getElementById('word-container');
+        const wordDisplay = document.getElementById('word');
+        const inputField = document.getElementById('input');
+        const submitButton = document.getElementById('submit');
+        const scoreContainer = document.getElementById('score-container');
+        const timerContainer = document.getElementById('timer-container');
+        const scoreDisplay = document.getElementById('score');
+        const timerDisplay = document.getElementById('timer');
+
         let score = 0;
-        let timer;
-        let timeLeft = 10; // 10 seconds countdown for each word
+        let timeRemaining = 60;
+        let timerInterval;
+        let currentWordIndex = 0;
 
-        // Words for each grade
-        const gradeWords = {
-            1: ['مدرسة', 'كتاب', 'شجرة', 'ساحة', 'بنت', 'سيّارة', 'نهاية', 'كأس', 'بيضة', 'دفتر'],
-            2: ['أنار', 'إبهام', 'كتابة', 'جلوسه', 'حقيبة', 'مقاعد', 'خزانة', 'الطفل', 'يعتاد', 'البحر'],
-            3: ['معهد', 'الموسيقى', 'الحاسوب', 'طاولات', 'سجادة', 'ظواهر', 'المصباح', 'الفأس', 'البئر', 'تضمين'],
-            4: ['استقبل', 'يستتر', 'ارتمى', 'ينتسب', 'مسؤول', 'إشارة', 'حقيبة', 'كتابات', 'سئم', 'تعوّد'],
-            5: ['مؤسسة', 'جهود', 'شجاعة', 'إنجازات', 'شروط', 'طفولة', 'مسؤولية', 'الرعاية', 'العصافير', 'المجازفة'],
-            6: ['إنجازاته', 'تفاؤل', 'يستهزئ', 'أصدقاء', 'كتابا', 'دعا', 'شرى', 'الطريق', 'مياه', 'اجتهاد'],
-            7: ['إبداع', 'رئيس', 'عبء', 'سعى', 'خطا', 'فتاة', 'الصدق', 'مكار', 'الأمانة', 'التفاؤ'],
-            8: ['ملجأ', 'مأدبة', 'يتساءل', 'يهدي', 'شدا', 'قضاة', 'دعاة', 'نباتات', 'التكنولوجيا', 'استدعى']
-        };
+        const words = ["كتاب", "قلم", "مدرسة", "حديقة", "شجرة"]; // Sample Arabic words
 
-        // Function to speak the word using text-to-speech
-        function speakWord(word) {
-            const utterance = new SpeechSynthesisUtterance(word);
-            utterance.lang = 'ar-SA';  // Set the language to Arabic
-            speechSynthesis.speak(utterance);
-        }
-
-        // Function to start the test
         function startTest() {
-            const name = document.getElementById('name').value;
-            const grade = document.getElementById('grade').value;
-            
-            if (name === '') {
-                alert('من فضلك أدخل اسمك');
-                return;
-            }
+            // Hide start button and show the game containers
+            startButton.style.display = 'none';
+            wordContainer.style.display = 'block';
+            scoreContainer.style.display = 'block';
+            timerContainer.style.display = 'block';
 
-            // Set the words based on the selected grade
-            words = gradeWords[grade];
+            // Reset score and timer
+            score = 0;
+            timeRemaining = 60;
+            scoreDisplay.textContent = score;
+            timerDisplay.textContent = timeRemaining;
 
-            // Hide the start form and show the test container
-            document.getElementById('name-container').style.display = 'none';
-            document.getElementById('test-container').style.display = 'block';
+            // Start the timer
+            timerInterval = setInterval(updateTimer, 1000);
 
-            // Start with the first word
-            showNextWord();
+            // Display the first word
+            currentWordIndex = 0;
+            displayWord();
         }
 
-        // Function to show the next word
-        function showNextWord() {
+        function updateTimer() {
+            timeRemaining--;
+            timerDisplay.textContent = timeRemaining;
+
+            if (timeRemaining <= 0) {
+                endTest();
+            }
+        }
+
+        function displayWord() {
             if (currentWordIndex < words.length) {
-                const word = words[currentWordIndex];
-                document.getElementById('answer').value = '';  // Clear the previous answer
-                document.getElementById('result').textContent = ''; // Clear previous result
-                document.getElementById('result').className = ''; // Reset result styling
-                timeLeft = 10; // Reset the timer to 10 seconds
-
-                // Start the countdown timer
-                startTimer();
-
-                // Speak the word aloud
-                speakWord(word);
+                wordDisplay.textContent = words[currentWordIndex];
+                inputField.value = '';
+                inputField.focus();
             } else {
                 endTest();
             }
         }
 
-        // Function to start and update the timer
-        function startTimer() {
-            // Clear any previous interval to avoid multiple timers running
-            clearInterval(timer);
-            
-            // Update the timer every second
-            timer = setInterval(function () {
-                document.getElementById('timer').textContent = `الوقت: ${timeLeft} ثواني`;
-                time
+        function submitAnswer() {
+            const userAnswer = inputField.value.trim();
+            const correctAnswer = words[currentWordIndex];
+
+            if (userAnswer === correctAnswer) {
+                score++;
+                scoreDisplay.textContent = score;
+            }
+
+            currentWordIndex++;
+            displayWord();
+        }
+
+        function endTest() {
+            clearInterval(timerInterval);
+            alert(`Test finished! Your final score is: ${score}`);
+            // Reset the UI
+            startButton.style.display = 'block';
+            wordContainer.style.display = 'none';
+            scoreContainer.style.display = 'none';
+            timerContainer.style.display = 'none';
+        }
+
+        startButton.addEventListener('click', startTest);
+        submitButton.addEventListener('click', submitAnswer);
+
+        inputField.addEventListener('keypress', function (event) {
+            if (event.key === 'Enter') {
+                submitAnswer();
+            }
+        });
+    </script>
+</body>
+</html>
