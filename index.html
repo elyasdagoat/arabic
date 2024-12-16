@@ -222,7 +222,7 @@
                 document.getElementById('result').textContent = 'إجابة صحيحة';
                 document.getElementById('result').className = 'result correct';
             } else {
-                document.getElementById('result').textContent = 'إجابة خاطئة';
+                document.getElementById('result').textContent = `إجابة خاطئة. الكلمة الصحيحة هي: ${correctWord}`;
                 document.getElementById('result').className = 'result wrong';
             }
 
