@@ -8,7 +8,8 @@
         body {
             font-family: Arial, sans-serif;
             text-align: center;
-            margin: 20px;
+            margin: 0;
+            padding: 0;
             background-color: #f0f8ff;
             direction: rtl;
         }
@@ -97,6 +98,19 @@
             background-color: #ffcc00;
             color: black;
         }
+
+        footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: #007acc;
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+            font-size: 14px;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -160,7 +174,12 @@
         </div>
     </div>
 
+    <footer>
+        <p>صنع بواسطة إلياس الحسني</p>
+    </footer>
+
     <script>
+        // JavaScript remains unchanged, functionality as before.
         const startButton = document.getElementById('start');
         const leaderboardButton = document.getElementById('leaderboard-btn');
         const nameInput = document.getElementById('name');
