@@ -142,6 +142,22 @@
                 <tbody id="results-table"></tbody>
             </table>
         </div>
+
+        <div id="leaderboard-container" style="display: none;">
+            <h2>لوحة المتصدرين</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>الترتيب</th>
+                        <th>الاسم</th>
+                        <th>الصف</th>
+                        <th>النتيجة</th>
+                        <th>الوقت الإجمالي (ثانية)</th>
+                    </tr>
+                </thead>
+                <tbody id="leaderboard-table"></tbody>
+            </table>
+        </div>
     </div>
 
     <script>
@@ -154,11 +170,16 @@
         const submitButton = document.getElementById('submit');
         const resultsContainer = document.getElementById('results-container');
         const resultsTable = document.getElementById('results-table');
+        const leaderboardContainer = document.getElementById('leaderboard-container');
+        const leaderboardTable = document.getElementById('leaderboard-table');
+        const totalTimeDisplay = document.getElementById('total-time');
 
         let score = 0;
         let currentWordIndex = 0;
         let words = [];
-        let startTime;
+        let userAnswers = [];
+        const leaderboard = [];
+        let startTime, endTime;
 
         const gradeWords = {
             1: ["أرنب", "بقرة", "تفاح", "ثعلب", "جمل", "حصان"],
@@ -166,9 +187,9 @@
             3: ["شاحنة", "صقر", "ضفدع", "طائرة", "ظرف", "عصفور"],
             4: ["غزال", "فيل", "قطة", "كلب", "ليمون", "موزة"],
             5: ["نسر", "هدهد", "وردة", "يد", "يوسفي", "بيض"],
-            6: ["كتاب", "قلم", "مدرسة", "حديقة", "شجرة", "طاولة"], // Grade 6 words added
-            7: ["كرسي", "نافذة", "باب", "لوحة", "كمبيوتر", "هاتف"], // Grade 7 words added
-            8: ["ساعة", "مكتبة", "مصباح", "مرآة", "ثلاجة", "سجادة"] // Grade 8 words added
+            6: ["كتاب", "قلم", "مدرسة", "حديقة", "شجرة", "طاولة"], // Grade 6 words
+            7: ["كرسي", "نافذة", "باب", "لوحة", "كمبيوتر", "هاتف"], // Grade 7 words
+            8: ["ساعة", "مكتبة", "مصباح", "مرآة", "ثلاجة", "سجادة"] // Grade 8 words
         };
 
         function speakWord(word) {
@@ -193,6 +214,7 @@
 
             words = gradeWords[selectedGrade];
             currentWordIndex = 0;
+            userAnswers = [];
             score = 0;
 
             wordContainer.style.display = "block";
@@ -216,21 +238,60 @@
         function submitAnswer() {
             const userInput = inputField.value.trim();
             const correctWord = words[currentWordIndex];
+
+            userAnswers.push({
+                word: correctWord,
+                answer: userInput,
+                status: userInput === correctWord ? "صحيح" : "خطأ"
+            });
+
             if (userInput === correctWord) score++;
             currentWordIndex++;
             displayNextWord();
         }
 
         function endTest() {
-            const endTime = new Date();
+            endTime = new Date();
             const totalTime = ((endTime - startTime) / 1000).toFixed(1);
-            alert(`الوقت الإجمالي: ${totalTime} ثانية. الدرجة: ${score}/${words.length}`);
+
+            const userName = nameInput.value.trim();
+            const userGrade = gradeSelector.options[gradeSelector.selectedIndex].text;
+
+            leaderboard.push({ name: userName, grade: userGrade, score, totalTime });
+            leaderboard.sort((a, b) => b.score - a.score || a.totalTime - b.totalTime);
+
+            wordContainer.style.display = "none";
+            resultsContainer.style.display = "block";
+            totalTimeDisplay.textContent = totalTime;
+
+            resultsTable.innerHTML = userAnswers.map(entry => `
+                <tr>
+                    <td>${entry.word}</td>
+                    <td>${entry.answer || "لا إجابة"}</td>
+                    <td>${entry.word}</td>
+                    <td>${entry.status}</td>
+                </tr>
+            `).join('');
+        }
+
+        function toggleLeaderboard() {
+            leaderboardContainer.style.display = leaderboardContainer.style.display === "none" ? "block" : "none";
+            leaderboardTable.innerHTML = leaderboard.map((entry, index) => `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td>${entry.name}</td>
+                    <td>${entry.grade}</td>
+                    <td>${entry.score}</td>
+                    <td>${entry.totalTime}</td>
+                </tr>
+            `).join('');
         }
 
         startButton.addEventListener("click", startTest);
         submitButton.addEventListener("click", submitAnswer);
-        inputField.addEventListener("keypress", (e) => {
-            if (e.key === "Enter") submitAnswer();
+        leaderboardButton.addEventListener("click", toggleLeaderboard);
+        inputField.addEventListener("keypress", event => {
+            if (event.key === "Enter") submitAnswer();
         });
     </script>
 </body>
