@@ -183,6 +183,13 @@
         const words = ['كتاب', 'مدرسة', 'شجرة'];  // Example words for the test
         let score = 0;
 
+        // Function to speak the word using text-to-speech
+        function speakWord(word) {
+            const utterance = new SpeechSynthesisUtterance(word);
+            utterance.lang = 'ar-SA';  // Set the language to Arabic
+            speechSynthesis.speak(utterance);
+        }
+
         // Function to show the next word and start the test
         function startTest() {
             const name = document.getElementById('name').value;
@@ -204,10 +211,14 @@
         // Function to display the next word
         function showNextWord() {
             if (currentWordIndex < words.length) {
-                document.getElementById('word').textContent = words[currentWordIndex];
+                const word = words[currentWordIndex];
+                document.getElementById('word').textContent = word;
                 document.getElementById('answer').value = '';
                 document.getElementById('result').textContent = '';
                 document.getElementById('result').className = '';
+
+                // Speak the word aloud
+                speakWord(word);
             } else {
                 endTest();
             }
