@@ -89,6 +89,22 @@
             font-size: 0.9em;
             color: #95a5a6;
         }
+
+        /* Loader styles */
+        .loader {
+            margin-top: 20px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 2s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
@@ -119,6 +135,7 @@
             <input type="text" id="answer" placeholder="اكتب الإجابة هنا">
         </div>
         <button id="next-button">التالي</button>
+        <div id="loader" class="loader" style="display: none;"></div> <!-- Loader -->
     </div>
 
     <div class="result" id="result"></div>
@@ -130,7 +147,7 @@
 
     <script>
         let currentWordIndex = 0;
-        const words = ['كتاب', 'مدرسة', 'شجرة', 'قلم', 'مكتبة', 'طاولة', 'جمل', 'حائط', 'نافذة', 'باب'];  // 10 words for the test
+        const words = ['كتاب', 'مدرسة', 'شجرة', 'قلم', 'طاولة'];  // More words added
         let score = 0;
         let timer;
         let timeLeft = 10; // 10 seconds countdown for each word
@@ -197,7 +214,7 @@
 
         // Function to check the user's answer and show result
         function checkAnswer() {
-            const userAnswer = document.getElementById('answer').value.trim();
+            const userAnswer = document.getElementById('answer').value;
             const correctWord = words[currentWordIndex];
 
             if (userAnswer === correctWord) {
@@ -205,7 +222,7 @@
                 document.getElementById('result').textContent = 'إجابة صحيحة';
                 document.getElementById('result').className = 'result correct';
             } else {
-                document.getElementById('result').textContent = `إجابة خاطئة. الكلمة الصحيحة هي: ${correctWord}`;
+                document.getElementById('result').textContent = 'إجابة خاطئة';
                 document.getElementById('result').className = 'result wrong';
             }
 
@@ -223,20 +240,11 @@
         function endTest() {
             document.getElementById('test-container').style.display = 'none';
             document.getElementById('final-score').style.display = 'block';
-
-            // Determine the grade based on the score
-            let grade;
-            if (score === 10) grade = "10";
-            else if (score === 9) grade = "9";
-            else if (score === 8) grade = "8";
-            else if (score === 7) grade = "7";
-            else if (score === 6) grade = "6";
-            else if (score === 5) grade = "5";
-            else if (score === 4) grade = "4";
-            else grade = "غير مقبول"; // If the score is less than 4
-
-            document.getElementById('final-score').textContent = `نتيجتك النهائية: ${score} من ${words.length}. درجتك: ${grade}`;
+            document.getElementById('final-score').textContent = `نتيجتك النهائية: ${score} من ${words.length}`;
         }
 
         // Start button event listener
-        document
+        document.getElementById('start-button').addEventListener('click', startTest);
+    </script>
+</body>
+</html>
