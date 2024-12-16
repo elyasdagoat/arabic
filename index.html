@@ -139,10 +139,6 @@
 
     <div class="result" id="result"></div>
     <div id="final-score" style="display: none;"></div>
-    <div id="word-results" style="display: none;">
-        <h3>نتائج الكلمات:</h3>
-        <ul id="word-list"></ul>
-    </div>
 
     <footer>
         © 2024 SAPS. جميع الحقوق محفوظة.
@@ -195,7 +191,7 @@
             showNextWord();
         }
 
-        // Function to show the next word (only speak, don't show the word)
+        // Function to show the next word
         function showNextWord() {
             if (currentWordIndex < words.length) {
                 const word = words[currentWordIndex];
@@ -220,3 +216,6 @@
             clearInterval(timer);
             
             // Update the timer every second
+            timer = setInterval(function () {
+                document.getElementById('timer').textContent = `الوقت: ${timeLeft} ثواني`;
+                time
