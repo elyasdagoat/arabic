@@ -4,75 +4,227 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Arabic Spelling Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+            background-color: #f0f8ff;
+        }
+
+        h1, h2 {
+            color: #007acc;
+        }
+
+        #grade, #start, #submit, #leaderboard-btn {
+            padding: 12px 25px;
+            margin: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        #start {
+            background-color: #007acc;
+            color: white;
+        }
+
+        #start:hover {
+            background-color: #ffcc00;
+            color: black;
+        }
+
+        #submit {
+            background-color: #ffcc00;
+            color: black;
+        }
+
+        #submit:hover {
+            background-color: #007acc;
+            color: white;
+        }
+
+        #leaderboard-btn {
+            background-color: white;
+            border: 2px solid #007acc;
+            color: #007acc;
+        }
+
+        #leaderboard-btn:hover {
+            background-color: #007acc;
+            color: white;
+        }
+
+        #word-container, #results-container, #leaderboard-container {
+            margin-top: 20px;
+            display: none;
+        }
+
+        #input {
+            padding: 10px;
+            font-size: 18px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 200px;
+        }
+
+        table {
+            width: 80%;
+            margin: 20px auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        table, th, td {
+            border: 1px solid #ccc;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #007acc;
+            color: white;
+        }
+
+        td {
+            background-color: #ffcc00;
+            color: black;
+        }
+    </style>
 </head>
 <body>
+    <h1>SAPS Spelling Test</h1>
+    <h2>Select Your Grade and Start</h2>
+
     <div>
+        <label for="name">Enter Your Name:</label>
+        <input type="text" id="name" placeholder="Your Name" required>
+        <br>
+        <label for="grade">Select Grade:</label>
+        <select id="grade">
+            <option value="1">Grade 1</option>
+            <option value="2">Grade 2</option>
+            <option value="3">Grade 3</option>
+            <option value="4">Grade 4</option>
+            <option value="5">Grade 5</option>
+            <option value="6">Grade 6</option>
+            <option value="7">Grade 7</option>
+            <option value="8">Grade 8</option>
+        </select>
         <button id="start">Start</button>
-        <div id="word-container" style="display: none;">
-            <h1 id="word"></h1>
-            <input type="text" id="input">
+        <button id="leaderboard-btn">View Leaderboard</button>
+
+        <div id="word-container">
+            <p>Listen carefully and type your answer:</p>
+            <input type="text" id="input" placeholder="Type your answer here">
             <button id="submit">Submit</button>
         </div>
-        <div id="score-container" style="display: none;">
-            <p>Score: <span id="score">0</span></p>
+
+        <div id="results-container" style="display:none;">
+            <h2>Results</h2>
+            <p>Total Time: <span id="total-time">0</span> seconds</p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Word</th>
+                        <th>Your Answer</th>
+                        <th>Correct Spelling</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="results-table"></tbody>
+            </table>
         </div>
-        <div id="timer-container" style="display: none;">
-            <p>Time Remaining: <span id="timer">60</span> seconds</p>
+
+        <div id="leaderboard-container" style="display: none;">
+            <h2>Leaderboard</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Name</th>
+                        <th>Grade</th>
+                        <th>Score</th>
+                        <th>Total Time (s)</th>
+                    </tr>
+                </thead>
+                <tbody id="leaderboard-table"></tbody>
+            </table>
         </div>
     </div>
 
     <script>
         const startButton = document.getElementById('start');
+        const leaderboardButton = document.getElementById('leaderboard-btn');
+        const nameInput = document.getElementById('name');
+        const gradeSelector = document.getElementById('grade');
         const wordContainer = document.getElementById('word-container');
-        const wordDisplay = document.getElementById('word');
         const inputField = document.getElementById('input');
         const submitButton = document.getElementById('submit');
-        const scoreContainer = document.getElementById('score-container');
-        const timerContainer = document.getElementById('timer-container');
-        const scoreDisplay = document.getElementById('score');
-        const timerDisplay = document.getElementById('timer');
+        const resultsContainer = document.getElementById('results-container');
+        const resultsTable = document.getElementById('results-table');
+        const leaderboardContainer = document.getElementById('leaderboard-container');
+        const leaderboardTable = document.getElementById('leaderboard-table');
+        const totalTimeDisplay = document.getElementById('total-time');
 
         let score = 0;
-        let timeRemaining = 60;
-        let timerInterval;
         let currentWordIndex = 0;
+        let words = [];
+        let userAnswers = [];
+        const leaderboard = [];
+        let startTime, endTime;
 
-        const words = ["كتاب", "قلم", "مدرسة", "حديقة", "شجرة"]; // Sample Arabic words
+        const gradeWords = {
+            1: ["أرنب", "بقرة", "تفاح", "ثعلب", "جمل", "حصان"],
+            2: ["خروف", "دجاجة", "ذئب", "رمان", "زرافة", "سيارة"],
+            3: ["شاحنة", "صقر", "ضفدع", "طائرة", "ظرف", "عصفور"],
+            4: ["غزال", "فيل", "قطة", "كلب", "ليمون", "موزة"],
+            5: ["نسر", "هدهد", "وردة", "يد", "يوسفي", "بيض"]
+        };
+
+        function speakWord(word) {
+            const utterance = new SpeechSynthesisUtterance(word);
+            utterance.lang = "ar-SA"; // Set language to Arabic
+            speechSynthesis.speak(utterance);
+        }
 
         function startTest() {
-            // Hide start button and show the game containers
-            startButton.style.display = 'none';
-            wordContainer.style.display = 'block';
-            scoreContainer.style.display = 'block';
-            timerContainer.style.display = 'block';
+            const selectedGrade = gradeSelector.value;
+            const userName = nameInput.value.trim();
 
-            // Reset score and timer
-            score = 0;
-            timeRemaining = 60;
-            scoreDisplay.textContent = score;
-            timerDisplay.textContent = timeRemaining;
-
-            // Start the timer
-            timerInterval = setInterval(updateTimer, 1000);
-
-            // Display the first word
-            currentWordIndex = 0;
-            displayWord();
-        }
-
-        function updateTimer() {
-            timeRemaining--;
-            timerDisplay.textContent = timeRemaining;
-
-            if (timeRemaining <= 0) {
-                endTest();
+            if (!userName) {
+                alert("Please enter your name!");
+                return;
             }
+
+            if (!selectedGrade) {
+                alert("Please select a grade!");
+                return;
+            }
+
+            words = gradeWords[selectedGrade];
+            currentWordIndex = 0;
+            userAnswers = [];
+            score = 0;
+
+            wordContainer.style.display = "block";
+            resultsContainer.style.display = "none";
+            startTime = new Date(); // Record start time
+
+            displayNextWord();
         }
 
-        function displayWord() {
+        function displayNextWord() {
             if (currentWordIndex < words.length) {
-                wordDisplay.textContent = words[currentWordIndex];
-                inputField.value = '';
+                const word = words[currentWordIndex];
+                speakWord(word); // Speak the word
+                inputField.value = ""; // Clear input
                 inputField.focus();
             } else {
                 endTest();
@@ -80,35 +232,62 @@
         }
 
         function submitAnswer() {
-            const userAnswer = inputField.value.trim();
-            const correctAnswer = words[currentWordIndex];
+            const userInput = inputField.value.trim();
+            const correctWord = words[currentWordIndex];
 
-            if (userAnswer === correctAnswer) {
-                score++;
-                scoreDisplay.textContent = score;
-            }
+            userAnswers.push({
+                word: correctWord,
+                answer: userInput,
+                status: userInput === correctWord ? "Correct" : "Incorrect"
+            });
 
+            if (userInput === correctWord) score++;
             currentWordIndex++;
-            displayWord();
+            displayNextWord();
         }
 
         function endTest() {
-            clearInterval(timerInterval);
-            alert(`Test finished! Your final score is: ${score}`);
-            // Reset the UI
-            startButton.style.display = 'block';
-            wordContainer.style.display = 'none';
-            scoreContainer.style.display = 'none';
-            timerContainer.style.display = 'none';
+            endTime = new Date(); // Record end time
+            const totalTime = ((endTime - startTime) / 1000).toFixed(1); // Calculate total time in seconds
+
+            const userName = nameInput.value.trim();
+            const userGrade = gradeSelector.options[gradeSelector.selectedIndex].text;
+
+            leaderboard.push({ name: userName, grade: userGrade, score, totalTime });
+            leaderboard.sort((a, b) => b.score - a.score || a.totalTime - b.totalTime); // Sort by score, then time
+
+            wordContainer.style.display = "none";
+            resultsContainer.style.display = "block";
+            totalTimeDisplay.textContent = totalTime;
+
+            resultsTable.innerHTML = userAnswers.map(entry => `
+                <tr>
+                    <td>${entry.word}</td>
+                    <td>${entry.answer || "No Answer"}</td>
+                    <td>${entry.word}</td>
+                    <td>${entry.status}</td>
+                </tr>
+            `).join('');
         }
 
-        startButton.addEventListener('click', startTest);
-        submitButton.addEventListener('click', submitAnswer);
+        function toggleLeaderboard() {
+            leaderboardContainer.style.display = leaderboardContainer.style.display === "none" ? "block" : "none";
+            leaderboardTable.innerHTML = leaderboard.map((entry, index) => `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td>${entry.name}</td>
+                    <td>${entry.grade}</td>
+                    <td>${entry.score}</td>
+                    <td>${entry.totalTime}</td>
+                </tr>
+            `).join('');
+        }
 
-        inputField.addEventListener('keypress', function (event) {
-            if (event.key === 'Enter') {
-                submitAnswer();
-            }
+        startButton.addEventListener("click", startTest);
+        submitButton.addEventListener("click", submitAnswer);
+        leaderboardButton.addEventListener("click", toggleLeaderboard);
+        inputField.addEventListener("keypress", event => {
+            if (event.key === "Enter") submitAnswer();
         });
     </script>
 </body>
