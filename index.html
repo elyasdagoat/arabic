@@ -213,17 +213,6 @@
             8: ["ساعة", "مكتبة", "مصباح", "مرآة", "ثلاجة", "سجادة"]
         };
 
-        const gradeTimeLimits = {
-            1: 10,
-            2: 9,
-            3: 8,
-            4: 7,
-            5: 6,
-            6: 5,
-            7: 5,
-            8: 5
-        };
-
         function speakWord(word) {
             const utterance = new SpeechSynthesisUtterance(word);
             utterance.lang = "ar-SA";
@@ -272,8 +261,7 @@
 
         function resetTimer() {
             clearInterval(timerInterval);
-            const selectedGrade = gradeSelector.value;
-            let timeRemaining = gradeTimeLimits[selectedGrade];
+            let timeRemaining = 10;
             timerDisplay.textContent = timeRemaining;
             timerInterval = setInterval(() => {
                 timeRemaining--;
@@ -337,4 +325,14 @@
                     <td>${entry.totalElapsedTime}</td>
                 </tr>
             `).join('');
-       
+        }
+
+        startButton.addEventListener("click", startTest);
+        submitButton.addEventListener("click", submitAnswer);
+        leaderboardButton.addEventListener("click", toggleLeaderboard);
+        inputField.addEventListener("keypress", event => {
+            if (event.key === "Enter") submitAnswer();
+        });
+    </script>
+</body>
+</html>
