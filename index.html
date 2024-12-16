@@ -6,110 +6,96 @@
     <title>اختبار التهجئة العربي</title>
     <style>
         body {
-            font-family: "Amiri", serif;
+            font-family: Arial, sans-serif;
             text-align: center;
-            margin: 0;
-            padding: 0;
-            background: linear-gradient(to bottom, #e8f5e9, #f0f8ff);
-            color: #004d40;
+            margin: 20px;
+            background-color: #f0f8ff;
             direction: rtl;
         }
 
-        h1 {
-            font-size: 36px;
-            font-weight: bold;
-            margin-top: 20px;
-            color: #00796b;
+        h1, h2 {
+            color: #007acc;
         }
 
-        h2 {
-            font-size: 24px;
-            font-weight: bold;
-            color: #004d40;
-        }
-
-        label {
+        #grade, #start, #submit, #leaderboard-btn {
+            padding: 12px 25px;
+            margin: 15px;
             font-size: 18px;
             font-weight: bold;
-            color: #004d40;
-        }
-
-        input, select, button {
-            padding: 12px 20px;
-            margin: 10px;
-            font-size: 16px;
             border-radius: 8px;
-            border: 2px solid #004d40;
-            outline: none;
-        }
-
-        input {
-            width: 250px;
-        }
-
-        button {
-            background-color: #004d40;
-            color: white;
+            border: none;
             cursor: pointer;
-            transition: background-color 0.3s ease, transform 0.2s ease;
+            transition: all 0.3s;
         }
 
-        button:hover {
-            background-color: #00796b;
-            transform: scale(1.05);
+        #start {
+            background-color: #007acc;
+            color: white;
         }
 
-        select {
-            width: 200px;
+        #start:hover {
+            background-color: #ffcc00;
+            color: black;
+        }
+
+        #submit {
+            background-color: #ffcc00;
+            color: black;
+        }
+
+        #submit:hover {
+            background-color: #007acc;
+            color: white;
+        }
+
+        #leaderboard-btn {
+            background-color: white;
+            border: 2px solid #007acc;
+            color: #007acc;
+        }
+
+        #leaderboard-btn:hover {
+            background-color: #007acc;
+            color: white;
         }
 
         #word-container, #results-container, #leaderboard-container {
             margin-top: 20px;
-            padding: 20px;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
             display: none;
         }
 
         #input {
+            padding: 10px;
             font-size: 18px;
-            border: 2px solid #004d40;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 200px;
         }
 
         table {
-            width: 90%;
+            width: 80%;
             margin: 20px auto;
             border-collapse: collapse;
             background-color: white;
         }
 
         table, th, td {
-            border: 1px solid #ddd;
+            border: 1px solid #ccc;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: center;
         }
 
         th {
-            background-color: #004d40;
+            background-color: #007acc;
             color: white;
-            font-size: 16px;
         }
 
         td {
-            padding: 10px;
-            font-size: 14px;
-            color: #004d40;
-        }
-
-        footer {
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-            background-color: #004d40;
-            color: white;
-            text-align: center;
-            padding: 10px 0;
-            font-size: 14px;
-            font-weight: bold;
+            background-color: #ffcc00;
+            color: black;
         }
     </style>
 </head>
@@ -141,7 +127,7 @@
             <button id="submit">إرسال</button>
         </div>
 
-        <div id="results-container">
+        <div id="results-container" style="display:none;">
             <h2>النتائج</h2>
             <p>الوقت الإجمالي: <span id="total-time">0</span> ثانية</p>
             <table>
@@ -156,27 +142,7 @@
                 <tbody id="results-table"></tbody>
             </table>
         </div>
-
-        <div id="leaderboard-container">
-            <h2>لوحة المتصدرين</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>الترتيب</th>
-                        <th>الاسم</th>
-                        <th>الصف</th>
-                        <th>النتيجة</th>
-                        <th>الوقت الإجمالي (ثانية)</th>
-                    </tr>
-                </thead>
-                <tbody id="leaderboard-table"></tbody>
-            </table>
-        </div>
     </div>
-
-    <footer>
-        <p>صنع بواسطة إلياس الحسني</p>
-    </footer>
 
     <script>
         const startButton = document.getElementById('start');
@@ -188,16 +154,11 @@
         const submitButton = document.getElementById('submit');
         const resultsContainer = document.getElementById('results-container');
         const resultsTable = document.getElementById('results-table');
-        const leaderboardContainer = document.getElementById('leaderboard-container');
-        const leaderboardTable = document.getElementById('leaderboard-table');
-        const totalTimeDisplay = document.getElementById('total-time');
 
         let score = 0;
         let currentWordIndex = 0;
         let words = [];
-        let userAnswers = [];
-        const leaderboard = [];
-        let startTime, endTime;
+        let startTime;
 
         const gradeWords = {
             1: ["أرنب", "بقرة", "تفاح", "ثعلب", "جمل", "حصان"],
@@ -205,9 +166,9 @@
             3: ["شاحنة", "صقر", "ضفدع", "طائرة", "ظرف", "عصفور"],
             4: ["غزال", "فيل", "قطة", "كلب", "ليمون", "موزة"],
             5: ["نسر", "هدهد", "وردة", "يد", "يوسفي", "بيض"],
-            6: ["كتاب", "قلم", "مدرسة", "حديقة", "شجرة", "طاولة"], // Grade 6 words
-            7: ["كرسي", "نافذة", "باب", "لوحة", "كمبيوتر", "هاتف"], // Grade 7 words
-            8: ["ساعة", "مكتبة", "مصباح", "مرآة", "ثلاجة", "سجادة"] // Grade 8 words
+            6: ["كتاب", "قلم", "مدرسة", "حديقة", "شجرة", "طاولة"], // Grade 6 words added
+            7: ["كرسي", "نافذة", "باب", "لوحة", "كمبيوتر", "هاتف"], // Grade 7 words added
+            8: ["ساعة", "مكتبة", "مصباح", "مرآة", "ثلاجة", "سجادة"] // Grade 8 words added
         };
 
         function speakWord(word) {
@@ -232,7 +193,6 @@
 
             words = gradeWords[selectedGrade];
             currentWordIndex = 0;
-            userAnswers = [];
             score = 0;
 
             wordContainer.style.display = "block";
@@ -256,41 +216,22 @@
         function submitAnswer() {
             const userInput = inputField.value.trim();
             const correctWord = words[currentWordIndex];
-
-            userAnswers.push({
-                word: correctWord,
-                answer: userInput,
-                status: userInput === correctWord ? "صحيح" : "خطأ"
-            });
-
             if (userInput === correctWord) score++;
             currentWordIndex++;
             displayNextWord();
         }
 
         function endTest() {
-            endTime = new Date();
+            const endTime = new Date();
             const totalTime = ((endTime - startTime) / 1000).toFixed(1);
-
-            const userName = nameInput.value.trim();
-            const userGrade = gradeSelector.options[gradeSelector.selectedIndex].text;
-
-            leaderboard.push({ name: userName, grade: userGrade, score, totalTime });
-            leaderboard.sort((a, b) => b.score - a.score || a.totalTime - b.totalTime);
-
-            wordContainer.style.display = "none";
-            resultsContainer.style.display = "block";
-            totalTimeDisplay.textContent = totalTime;
-
-            resultsTable.innerHTML = userAnswers.map(entry => `
-                <tr>
-                    <td>${entry.word}</td>
-                    <td>${entry.answer || "لا إجابة"}</td>
-                    <td>${entry.word}</td>
-                    <td>${entry.status}</td>
-                </tr>
-            `).join('');
+            alert(`الوقت الإجمالي: ${totalTime} ثانية. الدرجة: ${score}/${words.length}`);
         }
 
-        function toggleLeaderboard() {
-            leaderboardContainer.style.display = leaderboardContainer.style.display === "none" ? "block" : "
+        startButton.addEventListener("click", startTest);
+        submitButton.addEventListener("click", submitAnswer);
+        inputField.addEventListener("keypress", (e) => {
+            if (e.key === "Enter") submitAnswer();
+        });
+    </script>
+</body>
+</html>
