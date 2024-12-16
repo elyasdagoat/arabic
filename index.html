@@ -148,7 +148,6 @@
 
     <div id="test-container" style="display: none;">
         <div id="timer">الوقت: 10 ثواني</div>
-        <div class="word" id="word">الكلمة 1</div>
         <div class="input-container">
             <input type="text" id="answer" placeholder="اكتب الإجابة هنا">
         </div>
@@ -190,7 +189,7 @@
             speechSynthesis.speak(utterance);
         }
 
-        // Function to show the next word and start the test
+        // Function to start the test
         function startTest() {
             const name = document.getElementById('name').value;
             const grade = document.getElementById('grade').value;
@@ -208,12 +207,11 @@
             showNextWord();
         }
 
-        // Function to display the next word
+        // Function to show the next word (only speak, don't show the word)
         function showNextWord() {
             if (currentWordIndex < words.length) {
                 const word = words[currentWordIndex];
-                document.getElementById('word').textContent = word;
-                document.getElementById('answer').value = '';
+                document.getElementById('answer').value = '';  // Clear the previous answer
                 document.getElementById('result').textContent = '';
                 document.getElementById('result').className = '';
 
