@@ -175,5 +175,71 @@
     <footer>
         © 2024 SAPS. جميع الحقوق محفوظة.
     </footer>
+
+    <script>
+        // JavaScript functionality
+
+        let currentWordIndex = 0;
+        const words = ['كتاب', 'مدرسة', 'شجرة'];  // Example words for the test
+        let score = 0;
+
+        // Function to show the next word and start the test
+        function startTest() {
+            const name = document.getElementById('name').value;
+            const grade = document.getElementById('grade').value;
+            
+            if (name === '') {
+                alert('من فضلك أدخل اسمك');
+                return;
+            }
+
+            // Hide the start form and show the test container
+            document.getElementById('name-container').style.display = 'none';
+            document.getElementById('test-container').style.display = 'block';
+
+            // Start with the first word
+            showNextWord();
+        }
+
+        // Function to display the next word
+        function showNextWord() {
+            if (currentWordIndex < words.length) {
+                document.getElementById('word').textContent = words[currentWordIndex];
+                document.getElementById('answer').value = '';
+                document.getElementById('result').textContent = '';
+                document.getElementById('result').className = '';
+            } else {
+                endTest();
+            }
+        }
+
+        // Function to check the user's answer and show result
+        document.getElementById('next-button').addEventListener('click', function () {
+            const userAnswer = document.getElementById('answer').value;
+            const correctWord = words[currentWordIndex];
+
+            if (userAnswer === correctWord) {
+                score++;
+                document.getElementById('result').textContent = 'إجابة صحيحة';
+                document.getElementById('result').className = 'result correct';
+            } else {
+                document.getElementById('result').textContent = 'إجابة خاطئة';
+                document.getElementById('result').className = 'result wrong';
+            }
+
+            currentWordIndex++;
+            showNextWord();
+        });
+
+        // Function to end the test and show the final score
+        function endTest() {
+            document.getElementById('test-container').style.display = 'none';
+            document.getElementById('final-score').style.display = 'block';
+            document.getElementById('final-score').textContent = `نتيجتك النهائية: ${score} من ${words.length}`;
+        }
+
+        // Start button event listener
+        document.getElementById('start-button').addEventListener('click', startTest);
+    </script>
 </body>
 </html>
