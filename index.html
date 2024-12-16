@@ -90,7 +90,6 @@
             color: #95a5a6;
         }
 
-        /* Loader styles */
         .loader {
             margin-top: 20px;
             border: 4px solid #f3f3f3;
@@ -105,6 +104,7 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+
     </style>
 </head>
 <body>
@@ -135,11 +135,14 @@
             <input type="text" id="answer" placeholder="اكتب الإجابة هنا">
         </div>
         <button id="next-button">التالي</button>
-        <div id="loader" class="loader" style="display: none;"></div> <!-- Loader -->
     </div>
 
     <div class="result" id="result"></div>
     <div id="final-score" style="display: none;"></div>
+    <div id="word-results" style="display: none;">
+        <h3>نتائج الكلمات:</h3>
+        <ul id="word-list"></ul>
+    </div>
 
     <footer>
         © 2024 SAPS. جميع الحقوق محفوظة.
@@ -147,10 +150,11 @@
 
     <script>
         let currentWordIndex = 0;
-        const words = ['كتاب', 'مدرسة', 'شجرة', 'قلم', 'طاولة'];  // More words added
+        const words = ['كتاب', 'مدرسة', 'شجرة', 'قلم', 'طاولة'];  // List of words
         let score = 0;
         let timer;
         let timeLeft = 10; // 10 seconds countdown for each word
+        const answers = [];  // Array to store answers
 
         // Function to speak the word using text-to-speech
         function speakWord(word) {
@@ -182,8 +186,8 @@
             if (currentWordIndex < words.length) {
                 const word = words[currentWordIndex];
                 document.getElementById('answer').value = '';  // Clear the previous answer
-                document.getElementById('result').textContent = '';
-                document.getElementById('result').className = '';
+                document.getElementById('result').textContent = ''; // Clear previous result
+                document.getElementById('result').className = ''; // Reset result styling
                 timeLeft = 10; // Reset the timer to 10 seconds
 
                 // Start the countdown timer
@@ -217,6 +221,13 @@
             const userAnswer = document.getElementById('answer').value;
             const correctWord = words[currentWordIndex];
 
+            // Store the user's answer
+            answers.push({
+                word: correctWord,
+                userAnswer: userAnswer,
+                isCorrect: userAnswer === correctWord
+            });
+
             if (userAnswer === correctWord) {
                 score++;
                 document.getElementById('result').textContent = 'إجابة صحيحة';
@@ -227,7 +238,13 @@
             }
 
             currentWordIndex++;
-            showNextWord();
+
+            // If there are more words, show the next word after a short delay
+            if (currentWordIndex < words.length) {
+                setTimeout(showNextWord, 1000); // 1-second delay before showing the next word
+            } else {
+                setTimeout(endTest, 1000); // 1-second delay before ending the test
+            }
         }
 
         // Function to handle "Next" button click
@@ -240,11 +257,4 @@
         function endTest() {
             document.getElementById('test-container').style.display = 'none';
             document.getElementById('final-score').style.display = 'block';
-            document.getElementById('final-score').textContent = `نتيجتك النهائية: ${score} من ${words.length}`;
-        }
-
-        // Start button event listener
-        document.getElementById('start-button').addEventListener('click', startTest);
-    </script>
-</body>
-</html>
+            document
